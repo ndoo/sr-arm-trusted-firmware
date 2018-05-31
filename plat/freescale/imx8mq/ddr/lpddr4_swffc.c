@@ -11,21 +11,13 @@
 
 #include "lpddr4_dvfs.h"
 
-#define P0_INIT3 0x00D4002D
-#define P0_INIT4 0x00310008
-#define P0_INIT6 0x0066004a
-#define P0_INIT7 0x0006004a
-
-#define P1_INIT3 0x0140009
-#define P1_INIT4 0x00310008
-#define P1_INIT6 0x0066004a
-#define P1_INIT7 0x0006004a
-
 #define HW_DRAM_PLL_CFG0_ADDR     (0x30360000 + 0x60)
 #define HW_DRAM_PLL_CFG1_ADDR     (0x30360000 + 0x64)
 #define HW_DRAM_PLL_CFG2_ADDR     (0x30360000 + 0x68)
 
 #define DFILP_SPT
+
+extern unsigned int default_ddr_pllcfg;
 
 void sscgpll_bypass_enable(unsigned int reg_addr)
 {
@@ -67,16 +59,18 @@ void DDR_PLL_CONFIG_FREQ(unsigned int freq)
 		case 667:
 			mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, 0x00ece480);
 			break;
-	        case 400:
-	                mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, 0x00ec6984);
+	    case 400:
+	        mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, 0x00ec6984);
 			break;
-	        case 167:
+	    case 167:
 			mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, 0x00f5a406);
 			break;
-	        case 100:
-	                mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, 0x015dea96);
+	    case 100:
+	        mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, 0x015dea96);
 			break;
-
+		case 0:
+	        mmio_write_32(HW_DRAM_PLL_CFG2_ADDR, default_ddr_pllcfg);
+			break;
 		default:
 			printf("Input freq=%d error.\n",freq);
 	}
@@ -118,24 +112,24 @@ void lpddr4_dvfs_swffc(unsigned int init_fsp, unsigned int target_freq)
 
 	/* setting for 3200 mts */
 	if(target_freq==0) {
-		mr   = P0_INIT3 >> 16;
-		emr  = P0_INIT3 & 0xFFFF;
-		emr2 = P0_INIT4 >> 16;
-		emr3 = P0_INIT4 & 0xFFFF;
-		mr11 = P0_INIT6 >> 16;
-		mr12 = P0_INIT6 & 0xFFFF;
-		mr22 = P0_INIT7 >> 16;
-		mr14 = P0_INIT7 & 0xFFFF;
+		mr   = mmio_read_32(DDRC_INIT3(0)) >> 16;
+		emr  = mmio_read_32(DDRC_INIT3(0)) & 0xFFFF;
+		emr2 = mmio_read_32(DDRC_INIT4(0)) >> 16;
+		emr3 = mmio_read_32(DDRC_INIT4(0)) & 0xFFFF;
+		mr11 = mmio_read_32(DDRC_INIT6(0)) >> 16;
+		mr12 = mmio_read_32(DDRC_INIT6(0)) & 0xFFFF;
+		mr22 = mmio_read_32(DDRC_INIT7(0)) >> 16;
+		mr14 = mmio_read_32(DDRC_INIT7(0)) & 0xFFFF;
 	} else {
 	/* setting for 667 mts */
-		mr   = P1_INIT3 >> 16;
-		emr  = P1_INIT3 & 0xFFFF;
-		emr2 = P1_INIT4 >> 16;
-		emr3 = P1_INIT4 & 0xFFFF;
-		mr11 = P1_INIT6 >> 16;
-		mr12 = P1_INIT6 & 0xFFFF;
-		mr22 = P1_INIT7 >> 16;
-		mr14 = P1_INIT7 & 0xFFFF;
+		mr   = mmio_read_32(DDRC_FREQ1_INIT3(0)) >> 16;
+		emr  = mmio_read_32(DDRC_FREQ1_INIT3(0)) & 0xFFFF;
+		emr2 = mmio_read_32(DDRC_FREQ1_INIT4(0)) >> 16;
+		emr3 = mmio_read_32(DDRC_FREQ1_INIT4(0)) & 0xFFFF;
+		mr11 = mmio_read_32(DDRC_FREQ1_INIT6(0)) >> 16;
+		mr12 = mmio_read_32(DDRC_FREQ1_INIT6(0)) & 0xFFFF;
+		mr22 = mmio_read_32(DDRC_FREQ1_INIT7(0)) >> 16;
+		mr14 = mmio_read_32(DDRC_FREQ1_INIT7(0)) & 0xFFFF;
 	}
 
 	tmp = (init_fsp== 1) ? 0x2 <<6 : 0x1 <<6;
@@ -203,10 +197,10 @@ void lpddr4_dvfs_swffc(unsigned int init_fsp, unsigned int target_freq)
 	mmio_write_32(DDRC_FREQ1_DERATEEN(0), tmp); /* ddrc_derate_enable, bit 0 */
 	tmp= mmio_read_32(DDRC_ZQCTL0(0));
 	tmp |= 0x80000000;
-	mmio_write_32(DDRC_ZQCTL0(0), tmp); /* ddrc_derate_enable, bit 0 */
+	mmio_write_32(DDRC_ZQCTL0(0), tmp);
 	tmp= mmio_read_32(DDRC_FREQ1_ZQCTL0(0));
 	tmp |= 0x80000000;
-	mmio_write_32(DDRC_FREQ1_ZQCTL0(0), tmp); /* ddrc_derate_enable, bit 0 */
+	mmio_write_32(DDRC_FREQ1_ZQCTL0(0), tmp);
 
 	/* 12. set PWRCTL.selfref_en=0 */
 	tmp= mmio_read_32(DDRC_PWRCTL(0));
@@ -275,7 +269,7 @@ void lpddr4_dvfs_swffc(unsigned int init_fsp, unsigned int target_freq)
 	/* Q4: only for legacy PHY, so here can skipped */
 	tmp= mmio_read_32(DDRC_DFIMISC(0));
 	tmp &= 0xFF;
-	tmp |= (target_freq << 8);  /* should be 0 */
+	tmp |= (target_freq << 8);
 	mmio_write_32(DDRC_DFIMISC(0),tmp);
 	tmp |= 0x20;
 	mmio_write_32(DDRC_DFIMISC(0),tmp);
@@ -288,16 +282,19 @@ void lpddr4_dvfs_swffc(unsigned int init_fsp, unsigned int target_freq)
 	/* switch_clocks for target frequency */
 	if(target_freq==0x1) {
 	/*	mmio_write_32(CCM_IP_CLK_ROOT_GEN_TAGET_CLR(1),(0x7<<24)|(0x7<<16)); */
-		mmio_write_32(0x3038a088, (0x7 << 24) | (0x7 << 16));
+		//mmio_write_32(0x3038a088, (0x7 << 24) | (0x7 << 16));
 	/*	mmio_write_32(CCM_IP_CLK_ROOT_GEN_TAGET_SET(1),(0x4<<24)|(0x4<<16)); */
-		mmio_write_32(0x3038a084, (0x4 << 24) | (0x4 << 16)); //to source 4 --800MHz/5
+		//mmio_write_32(0x3038a084, (0x4 << 24) | (0x4 << 16)); //to source 4 --800MHz/5
 		DDR_PLL_CONFIG_FREQ(167);
 	} else {
-		DDR_PLL_CONFIG_FREQ(800);
+		if(default_ddr_pllcfg)
+			DDR_PLL_CONFIG_FREQ(0);
+		else
+			DDR_PLL_CONFIG_FREQ(800);
 	/*	mmio_write_32(CCM_IP_CLK_ROOT_GEN_TAGET_CLR(1),(0x7<<24)|(0x7<<16)); */
-		mmio_write_32(0x3038a088, (0x7 << 24) | (0x7 << 16));
+		//mmio_write_32(0x3038a088, (0x7 << 24) | (0x7 << 16));
 	/*	mmio_write_32(CCM_IP_CLK_ROOT_GEN_TAGET_SET(1),(0x4<<24)|(0x3<<16)); */
-		mmio_write_32(0x3038a084, (0x4 << 24) | (0x3 << 16)); //to source 4 --800MHz/4*/
+		//mmio_write_32(0x3038a084, (0x4 << 24) | (0x3 << 16)); //to source 4 --800MHz/4*/
 	}
 
 	/* dfi_init_start de-assert */

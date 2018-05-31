@@ -24,6 +24,7 @@ void imx_set_rbc_count(void);
 void imx_clear_rbc_count(void);
 
 void lpddr4_cfg_umctl2(void);
+void lpddr4_save_umctl2(void);
 void lpddr4_phy_cfg(void);
 void lpddr4_phy_save_trained_csr(void);
 void lpddr4_switch_to_3200(void);

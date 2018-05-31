@@ -16,6 +16,7 @@
 
 #include "lpddr4_dvfs.h"
 
+#define HW_DRAM_PLL_CFG2_ADDR     (0x30360000 + 0x68)
 #define DDRC_LPDDR4	(1 << 5)
 #define DDR_TYPE_MASK	0x3f
 
@@ -27,6 +28,12 @@ static volatile uint32_t wfe_done;
 static volatile bool wait_ddrc_hwffc_done = true;
 
 static unsigned int init_fsp = 0x1;
+unsigned int default_ddr_pllcfg = 0;
+
+static inline int get_init_fsp(void)
+{
+	return (mmio_read_32(DDRC_DFIMISC(0))>>8)&0xf;
+}
 
 static inline int get_ddr_type(void)
 {
@@ -35,6 +42,15 @@ static inline int get_ddr_type(void)
 
 void lpddr4_switch_to_3200(void)
 {
+	init_fsp = get_init_fsp();
+	if(init_fsp == 0)
+	{
+		default_ddr_pllcfg = mmio_read_32(HW_DRAM_PLL_CFG2_ADDR);
+		return;
+	}
+
+	default_ddr_pllcfg = 0;
+
 	if (get_ddr_type() == DDRC_LPDDR4)
 		lpddr4_dvfs_swffc(init_fsp, 0x0);
 }
@@ -98,6 +114,7 @@ int lpddr4_dvfs_handler(uint32_t smc_fid,
 		init_fsp = (~init_fsp) & 0x1;
 #else
 		lpddr4_dvfs_swffc(init_fsp, target_freq);
+		init_fsp = (~init_fsp) & 0x1;
 #endif
 		wait_ddrc_hwffc_done = false;
 		wfe_done = 0;

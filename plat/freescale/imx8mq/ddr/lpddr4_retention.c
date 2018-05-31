@@ -27,13 +27,17 @@
 
 static bool trained_csr_saved = false;
 
+void lpddr4_save_umctl2(void);
+void lpddr4_phy_save_phy(void);
+
 void ddrc_enter_retention(void)
 {
 	unsigned int tmp, tmp_t, i;
 
 	/* only need be save once */
 	if (!trained_csr_saved) {
-		lpddr4_phy_save_trained_csr();
+		lpddr4_save_umctl2();
+		lpddr4_phy_save_phy();
 		trained_csr_saved = true;
 	}
 
