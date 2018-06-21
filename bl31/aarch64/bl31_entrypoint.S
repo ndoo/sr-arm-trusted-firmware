@@ -13,6 +13,10 @@
 
 	.globl	bl31_entrypoint
 	.globl	bl31_warm_entrypoint
+	.globl	abort_just_enabled
+
+.section .data.abort_just_enabled ; .align 3
+	abort_just_enabled: .quad 0
 
 	/* -----------------------------------------------------
 	 * bl31_entrypoint() is the cold boot entrypoint,

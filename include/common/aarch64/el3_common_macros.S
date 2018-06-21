@@ -107,8 +107,11 @@
 	 * vectors have been setup.
 	 * ---------------------------------------------------------------------
 	 */
+	adr	x0, 2f
+	adrp	x1, abort_just_enabled
+	str	x0, [x1, :lo12:abort_just_enabled]
 	msr	daifclr, #DAIF_ABT_BIT
-
+2:
 	/* ---------------------------------------------------------------------
 	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
 	 * All fields are architecturally UNKNOWN on reset.
