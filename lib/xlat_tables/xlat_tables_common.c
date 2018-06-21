@@ -129,7 +129,8 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 			bool separated_va = (end_va < mm->base_va) ||
 				(base_va > mm_end_va);
 
-			assert(separated_va && separated_pa);
+			if (separated_va && separated_pa)
+				tf_printf("%s\n", __func__);
 		}
 	}
 
