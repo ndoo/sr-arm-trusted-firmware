@@ -32,7 +32,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
@@ -45,6 +44,7 @@
 #include <tzc380.h>
 #include <imx_csu.h>
 #include <imx_rdc.h>
+#include <imx8_console.h>
 
 /* linker defined symbols */
 IMPORT_SYM(unsigned long, __RO_START__, BL31_RO_START);
@@ -215,8 +215,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	mmio_write_32(0x32df0050, 0x0);
 
 #if DEBUG_CONSOLE
-	console_init(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
-		     IMX_CONSOLE_BAUDRATE);
+	bl31_console_setup();
 #endif
 	/* enable the system counter */
 	system_counter_init();

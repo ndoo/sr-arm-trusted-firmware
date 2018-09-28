@@ -29,6 +29,9 @@
  */
 
 #include <asm_macros.S>
+#include <assert_macros.S>
+#include <console_macros.S>
+#include <imx8_console.h>
 
 /* UART Control Register Bit Fields.*/
 #define  URXD_CHARRDY    (1<<15)
@@ -143,15 +146,18 @@
 #define RXTL  1 /* reset default */
 #define RFDIV 4 /* divide input clock by 2 */
 
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
+	.globl	console_mxcuart_register
+	.globl	console_mxcuart_core_init
+	.globl	console_mxcuart_core_putc
+	.globl	console_mxcuart_core_getc
+	.globl	console_mxcuart_core_flush
 
-/* console_core_init */
-func console_core_init
-	mov	w0, wzr
-	ret
+	.globl	console_mxcuart_putc
+	.globl	console_mxcuart_getc
+	.globl	console_mxcuart_flush
+
+/* console_mxcuart_init */
+func console_mxcuart_core_init
 	/* Check the input base address */
 	cbz     x0, init_fail
 	/* Check baud rate and uart clock for sanity */
@@ -204,12 +210,33 @@ func console_core_init
 
 	mov	w3, #UCR1_UARTEN
 	str	w3, [x0, #UCR1]
-init_fail:
+	mov     w0, #1
 	ret
-endfunc console_core_init
+init_fail:
+	mov     w0, #0
+	ret
+endfunc console_mxcuart_core_init
+
+/* console_mxcuart_register */
+func console_mxcuart_register
+        mov     x7, x30
+        mov     x6, x3
+        cbz     x6, register_fail
+        str     x0, [x6, #CONSOLE_T_MXCUART_BASE]
+
+        bl      console_mxcuart_core_init
+        cbz     x0, register_fail
+
+        mov     x0, x6
+        mov     x30, x7
+        finish_console_register mxcuart
+
+register_fail:
+        ret     x7
+endfunc console_mxcuart_register
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned int base_addr)
+	 * int console_mxcuart_putc(int c, unsigned int base_addr)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -218,7 +245,13 @@ endfunc console_core_init
 	 * Clobber list : x2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
+func console_mxcuart_core_putc
+#if ENABLE_ASSERTIONS
+        cmp     x1, #0
+        ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+
+        cbz     x1, putc_error
 	/* Check the input parameter */
 	cbz	w1, putc_error
 
@@ -230,16 +263,25 @@ func console_core_putc
 	cmp	w0, #0xA
 	b.ne	2f
 	mov	w0, #0xD
-	b	console_core_putc
+	b	console_mxcuart_core_putc
 2:
 	ret
 putc_error:
 	mov	w0, #-1
 	ret
-endfunc console_core_putc
+endfunc console_mxcuart_core_putc
+
+func console_mxcuart_putc
+#if ENABLE_ASSERTIONS
+        cmp     x1, #0
+        ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+        ldr     x1, [x1, #CONSOLE_T_MXCUART_BASE]
+        b       console_mxcuart_core_putc
+endfunc console_mxcuart_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(unsigned int base_addr)
+	 * int console_mxcuart_getc(unsigned int base_addr)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on error.
@@ -248,7 +290,7 @@ endfunc console_core_putc
 	 * Clobber list : x0, x1, x2
 	 * ---------------------------------------------
 	 */
-func console_core_getc
+func console_mxcuart_core_getc
 	cbz	x0, getc_error
 1:
 	ldr	w1, [x0, #UTS]
@@ -259,12 +301,31 @@ func console_core_getc
 
 	ret
 getc_error:
-	mov	w0, #-1
+	mov	w0, #-2
 	ret
-endfunc console_core_getc
+endfunc console_mxcuart_core_getc
 
-/* console_core_flush */
-func console_core_flush
-	mov	w0, wzr
+func console_mxcuart_getc
+#if ENABLE_ASSERTIONS
+        cmp     x1, #0
+        ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+        ldr     x1, [x0, #CONSOLE_T_MXCUART_BASE]
+        b       console_mxcuart_core_getc
+endfunc console_mxcuart_getc
+
+/* console_mxcuart_flush */
+func console_mxcuart_core_flush
+	mov	w0, #0 
 	ret
-endfunc console_core_flush
+endfunc console_mxcuart_core_flush
+
+func console_mxcuart_flush
+#if ENABLE_ASSERTIONS
+        cmp     x0, #0
+        ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+        ldr     x1, [x0, #CONSOLE_T_MXCUART_BASE]
+        b       console_mxcuart_core_flush
+endfunc console_mxcuart_flush
+

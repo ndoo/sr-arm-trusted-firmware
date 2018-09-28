@@ -15,6 +15,7 @@ PLAT_DDR_SOURCES	:=	plat/freescale/imx8mq/ddr/lpddr4_ddrc_cfg.c	\
 
 BL31_SOURCES		+=	plat/freescale/common/imx8_helpers.S		\
 				plat/freescale/common/mxcuart_console.S		\
+				plat/freescale/common/imx8_console.c		\
 				plat/freescale/common/sip_svc.c			\
 				plat/freescale/imx8mq/imx8m_bl31_setup.c	\
 				plat/freescale/imx8mq/src.c			\
@@ -38,9 +39,14 @@ USE_COHERENT_MEM	:=	0
 RESET_TO_BL31		:=	1
 ERROR_DEPRECATED	:=	1
 XLAT_TABLE_IN_OCRAM_S	:=	1
-STACK_IN_OCRAM_S       :=      1
+STACK_IN_OCRAM_S	:=	1
+MULTI_CONSOLE_API	:=	1
 ifneq (${SPD},none)
 $(eval $(call add_define,TEE_IMX8))
 endif
 $(eval $(call add_define,XLAT_TABLE_IN_OCRAM_S))
+ifneq (${MULTI_CONSOLE_API}, 1)
+$(error Error: imx8m needs MULTI_CONSOLE_API=1)
+endif
+
 $(eval $(call add_define,STACK_IN_OCRAM_S))
