@@ -47,9 +47,10 @@
 #include <imx_rdc.h>
 
 /* linker defined symbols */
-extern unsigned long __RO_START__;
-extern unsigned long __RO_END__;
-extern unsigned long __BL31_END__;
+IMPORT_SYM(unsigned long, __RO_START__, BL31_RO_START);
+IMPORT_SYM(unsigned long, __RO_END__, BL31_RO_END);
+#define BL31_END (unsigned long)(&__BL31_END__)
+
 
 #if USE_COHERENT_MEM
 extern unsigned long __COHERENT_RAM_START__;
@@ -260,6 +261,12 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	csu_test();
 	rdc_test();
 #endif
+}
+
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
+{
+	bl31_early_platform_setup((void *)arg0, (void *)arg1);
 }
 
 void bl31_plat_arch_setup(void)

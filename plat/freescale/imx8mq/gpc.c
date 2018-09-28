@@ -7,9 +7,8 @@
 #include <debug.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <smcc_helpers.h>
+#include <smccc.h>
 #include <std_svc.h>
-#include <types.h>
 #include <mmio.h>
 #include <platform_def.h>
 #include <fsl_sip.h>
@@ -102,7 +101,7 @@ void imx_gpc_set_m_core_pgc(unsigned int offset, bool pdn)
 	mmio_write_32(IMX_GPC_BASE + offset, val);
 }
 
-void imx_set_cpu_secure_entry(int core_id, uint64_t sec_entrypoint)
+void imx_set_cpu_secure_entry(int core_id, uintptr_t sec_entrypoint)
 {
 	uint64_t temp_base;
 

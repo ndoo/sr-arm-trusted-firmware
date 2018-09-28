@@ -7,9 +7,8 @@
 #include <debug.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <smcc_helpers.h>
+#include <smccc.h>
 #include <std_svc.h>
-#include <types.h>
 #include <mmio.h>
 #include <platform_def.h>
 #include <fsl_sip.h>
