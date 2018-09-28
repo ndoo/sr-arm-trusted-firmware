@@ -227,7 +227,7 @@ void __dead2 imx_system_off(void)
 {
 	mmio_write_32(IMX_SNVS_BASE + SNVS_LPCR, 0x61);
 
-	tf_printf("Unable to poweroff system\n");
+	printf("Unable to poweroff system\n");
 
 	while (1)
 		;

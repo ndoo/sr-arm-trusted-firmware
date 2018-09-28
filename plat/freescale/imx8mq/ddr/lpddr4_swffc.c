@@ -106,7 +106,7 @@ void lpddr4_dvfs_swffc(unsigned int init_fsp, unsigned int target_freq)
 	unsigned int mr11, mr12, mr22, mr14;
 	unsigned int tmp, tmp_t, tmp2, i;
 
-	tf_printf("lpddr4 swffc start\n");
+	printf("lpddr4 swffc start\n");
 
 	/* MR13.FSP-WR=1, MRW to update the MR registers */
 
