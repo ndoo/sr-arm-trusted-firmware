@@ -79,6 +79,7 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 	uint64_t mpidr = read_mpidr_el1();
 	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
 
+	NOTICE("%s core %d\n", __func__, core_id);
 	/* disable the GIC cpu interface first */
 	plat_gic_cpuif_disable();
 	/* config the core for power down */
@@ -119,6 +120,7 @@ int imx_validate_power_state(unsigned int power_state,
 
 void imx_cpu_standby(plat_local_state_t cpu_state)
 {
+	NOTICE("%s\n", __func__);
 	dsb();
 	write_icc_igrpen1_el1(1);
 	write_scr_el3(read_scr_el3() | 0x4);
@@ -150,10 +152,11 @@ void imx_domain_suspend(const psci_power_state_t *target_state)
 		isb();
 	}
 
-	if (is_local_state_off(CLUSTER_PWR_STATE(target_state)))
+	if (is_local_state_off(CLUSTER_PWR_STATE(target_state))) {
 		imx_set_cluster_powerdown(core_id, true);
-	else
+	} else {
 		imx_set_cluster_standby(true);
+	}
 
 	if (is_local_state_retn(SYSTEM_PWR_STATE(target_state))) {
 		/* put DDR into retention mode */
@@ -175,9 +178,9 @@ void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 	}
 
 	/* check the cluster level power status */
-	if (is_local_state_off(CLUSTER_PWR_STATE(target_state)))
+	if (is_local_state_off(CLUSTER_PWR_STATE(target_state))) {
 		imx_set_cluster_powerdown(core_id, false);
-	else
+	} else
 		imx_set_cluster_standby(false);
 
 	/* check the core level power status */
@@ -238,6 +241,7 @@ void __dead2 imx_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
 	if (is_local_state_off(CLUSTER_PWR_STATE(target_state)))
 		imx_set_rbc_count();
 
+	dsb();
 	while (1)
 		wfi();
 }
