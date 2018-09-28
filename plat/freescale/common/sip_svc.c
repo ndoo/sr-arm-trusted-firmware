@@ -39,6 +39,12 @@
 #include <string.h>
 #include <bl_common.h>
 
+#if DEBUG_SIP
+#define debug(format...) NOTICE(format)
+#else
+#define debug(format, arg...)
+#endif
+
 extern int imx_gpc_handler(uint32_t  smc_fid, u_register_t x1, u_register_t x2, u_register_t x3);
 extern int imx_cpufreq_handler(uint32_t  smc_fid, u_register_t x1, u_register_t x2, u_register_t x3);
 extern int imx_srtc_handler(uint32_t smc_fid, void *handle, u_register_t x1,
@@ -109,9 +115,11 @@ uintptr_t imx_svc_smc_handler(uint32_t smc_fid,
 			      u_register_t x4,
 			      void *cookie,
 			      void *handle,
-			      uint64_t flags)
+			      u_register_t flags)
 {
-	NOTICE("smc_fid is %x\n", smc_fid);
+	debug("%s: got SMC (0x%x) x1 0x%lx, x2 0x%lx, x3 0x%lx\n",
+						__func__, smc_fid, x1, x2, x3);
+
 	switch (smc_fid) {
 #ifdef PLAT_IMX8M
 	case  FSL_SIP_GPC:
