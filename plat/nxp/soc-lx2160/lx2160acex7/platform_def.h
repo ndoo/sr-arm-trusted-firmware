@@ -22,6 +22,13 @@
 #if defined(IMAGE_BL2)
 #define SEC_MEM_NON_COHERENT
 #endif
+
+#if defined(IMAGE_BL31)
+#define LS_SYS_TIMCTL_BASE		0x2890000
+#define PLAT_LS_NSTIMER_FRAME_ID	0
+#define LS_CONFIG_CNTACR		1
+#endif
+
 /* Special value used to verify platform parameters from BL2 to BL31 */
 
 /* TBD -- Check and get back if this value is same for all platforms */
