@@ -17,6 +17,10 @@
 #include <bl31_data.h>
 #include <plat_psci.h>
 
+#define NXP_GPIO3_PD_OFFSET 0x0
+#define NXP_GPIO3_PD_GPIO (1 << 24)
+
+
 /*---------------------------------------------------------------------------*/
 
 .global soc_init_start
@@ -665,6 +669,11 @@ _soc_sys_reset:
   * uses x0, x1, x2, x3
   */
 _soc_sys_off:
+
+    mov x3, #NXP_GPIO3_ADDR
+    ldr x0, =NXP_GPIO3_PD_OFFSET
+    ldr w1, =NXP_GPIO3_PD_GPIO
+    str w1, [x3, x0]
 
      /* A-009810: LPM20 entry sequence might cause
       * spurious timeout reset request
