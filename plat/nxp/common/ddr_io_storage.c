@@ -23,8 +23,9 @@
 /* TBD - Move these defined to the platform_def.h file.
  * Keeping them for reference here
  */
-#define PLAT_DDR_FIP_OFFSET	0x800000
-#define PLAT_DDR_FIP_MAX_SIZE	0x32000
+// #define PLAT_DDR_FIP_OFFSET  0x800000
+#define PLAT_DDR_FIP_OFFSET     0x20000
+#define PLAT_DDR_FIP_MAX_SIZE   0x20000
 
 extern uintptr_t backend_dev_handle;
 
