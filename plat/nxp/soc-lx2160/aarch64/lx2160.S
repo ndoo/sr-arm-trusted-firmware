@@ -2012,7 +2012,11 @@ init_tzpc:
     str	w0, [x1]
 
     ldr	x1, =TZPCDECPROT_2_SET_BASE   /* decode Protection-2 Set Reg */
+#ifdef SECURE_BOOT
     mov	w0, #0xEF		      /* set decode region to NS, Bits[7:0] */
+#else
+    mov	w0, #0xFF		      /* set decode region to NS, Bits[7:0] */
+#endif
     str	w0, [x1]
 
      /* entire SRAM as NS */

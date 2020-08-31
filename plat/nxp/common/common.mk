@@ -64,6 +64,7 @@ ifeq (${TRUSTED_BOARD_BOOT},1)
 ifeq ($(SECURE_BOOT),)
 SECURE_BOOT := yes
 endif
+$(eval $(call add_define,SECURE_BOOT))
 endif
 
 $(eval $(call assert_boolean,POLICY_OTA))
