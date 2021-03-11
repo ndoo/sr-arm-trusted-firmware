@@ -103,6 +103,7 @@ BL2_HDR_LOC	:=	$$(echo "obase=16; ${BL2_HDR_LOC_HDR}" | bc)
 #
 # Core Errata
 ERRATA_A72_859971	:= 1
+ERRATA_A72_1319367	:= 1
 
 # SoC Errata
 ERRATA_SOC_A050426	:= 1
