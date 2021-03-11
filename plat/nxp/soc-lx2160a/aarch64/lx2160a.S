@@ -23,6 +23,7 @@
 .global soc_init_finish
 .global _set_platform_security
 .global _soc_set_start_addr
+.weak init_tzpc
 
 .global _soc_core_release
 .global _soc_ck_disabled
@@ -31,7 +32,7 @@
 .global _soc_core_entr_off
 .global _soc_core_exit_off
 .global _soc_sys_reset
-.global _soc_sys_off
+.weak	 _soc_sys_off
 .global _soc_core_prep_stdby
 .global _soc_core_entr_stdby
 .global _soc_core_exit_stdby
