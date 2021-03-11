@@ -77,7 +77,7 @@ static void fspi_unlock_LUT(void)
 static void fspi_op_setup(uint32_t fspi_op_seq_id, bool ignore_flash_sz)
 {
 	uint32_t x_addr, x_instr0 = 0, x_instr1 = 0, x_instr2 = 0;
-	uint32_t cmd_id1, cmd_id2;
+	uint32_t cmd_id1 = 0, cmd_id2 = 0;
 
 	VERBOSE("In func %s\n", __func__);
 
