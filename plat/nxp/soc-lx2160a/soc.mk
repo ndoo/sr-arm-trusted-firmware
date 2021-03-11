@@ -47,6 +47,7 @@ $(eval $(call SET_NXP_MAKE_FLAG,SNVS_NEEDED,BL2))
 # Used by create_pbl tool to
 # create bl2_<boot_mode>_sec.pbl image
 SECURE_BOOT	:= yes
+$(eval $(call add_define,SECURE_BOOT))
 endif
 $(eval $(call SET_NXP_MAKE_FLAG,CRYPTO_NEEDED,BL_COMM))
 
