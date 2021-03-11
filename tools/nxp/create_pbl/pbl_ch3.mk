@@ -42,11 +42,11 @@ else
 	$(Q)$(CST_DIR)/create_hdr_pbi --out ${BUILD_PLAT}/bl2_${BOOT_MODE}_sec.pbl --in ${BUILD_PLAT}/rcw_sec.pbl ${PBI_INPUT_FILE}
 
 	# Append the bl2_hdr to the RCW image
-	@echo "${bl2_hdr_loc}"
+	@echo "bl2_hdr_loc is  ${bl2_hdr_loc}"
 	dd if=${BUILD_PLAT}/hdr_bl2 of=${BUILD_PLAT}/bl2_${BOOT_MODE}_sec.pbl bs=1K seek=${bl2_hdr_loc}
 
 	# Append the bl2.bin to the RCW image
-	@echo "${bl2_loc}"
+	@echo "bl2_loc is ${bl2_loc}"
 	dd if=${BUILD_PLAT}/bl2.bin of=${BUILD_PLAT}/bl2_${BOOT_MODE}_sec.pbl bs=1K seek=${bl2_loc}
 
 	rm ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl
@@ -63,7 +63,7 @@ else
 	-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -f ${BL2_SRC_OFFSET};
 
 	# Append the bl2.bin to the RCW image
-	@echo "bl2_loc is ${bl2_offset}"
+	@echo "bl2_loc is ${bl2_loc}"
 	dd if=${BUILD_PLAT}/bl2.bin of=${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl bs=1K seek=${bl2_loc}
 
 	cd ${CREATE_PBL_TOOL_PATH}; ${MAKE} clean ; cd -;
