@@ -27,7 +27,7 @@
 #define SPD_SPA1_ADDRESS		0x37
 
 #define spd_to_ps(mtb, ftb)	\
-	((mtb) * pdimm->mtb_ps + ((ftb) * pdimm->ftb_10th_ps) / 10)
+	(mtb * pdimm->mtb_ps + ((-(ftb & 0x80) + (ftb & ~0x80)) * pdimm->ftb_10th_ps) / 10)
 
 #ifdef DDR_DEBUG
 #define dump_spd(spd, len) {				\
