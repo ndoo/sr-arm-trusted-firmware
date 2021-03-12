@@ -87,5 +87,7 @@ endif
 BL2_SOURCES	+=	${BOARD_PATH}/ddr_init.c\
 			${BOARD_PATH}/platform.c
 
+BL31_SOURCES	+=	${BOARD_PATH}/aarch64/${PLAT}.S
+
  # Adding SoC build info
 include plat/nxp/soc-lx2160a/soc.mk
