@@ -43,6 +43,8 @@
 #define PLATFORM_STACK_SIZE	0x1000
 #endif
 
+#define PLAT_DDR_FIP_OFFSET	0x20000
+
 /* SD block buffer */
 #define NXP_SD_BLOCK_BUF_SIZE	(0x8000)
 #define NXP_SD_BLOCK_BUF_ADDR	(NXP_OCRAM_ADDR + NXP_OCRAM_SIZE \

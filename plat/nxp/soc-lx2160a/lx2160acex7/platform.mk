@@ -83,6 +83,10 @@ ifeq (${WARM_BOOT},yes)
 $(eval $(call add_define_val,PHY_TRAINING_REGS_ON_FLASH,'${BL2_BIN_XSPI_NOR_END_ADDRESS} - ${NXP_XSPI_NOR_UNIT_SIZE}'))
 endif
 
+ifneq (${XMP_PROFILE},)
+$(eval $(call add_define_val,XMP_PROFILE,${XMP_PROFILE}))
+endif
+
  # Adding Platform files build files
 BL2_SOURCES	+=	${BOARD_PATH}/ddr_init.c\
 			${BOARD_PATH}/platform.c
