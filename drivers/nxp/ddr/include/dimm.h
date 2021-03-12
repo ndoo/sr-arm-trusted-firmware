@@ -45,6 +45,43 @@
 #define dump_spd(spd, len) {}
 #endif
 
+struct xmp_profile_data {
+	unsigned char module_vdd;             /* 393, 440 XMP Module VDD Voltage Level */
+	unsigned char res_394[396 - 394];	/* 394-395, 441-442 XMP Reserved */
+	unsigned char tck_min;                /* 396, 443 XMP SDRAM Minimum Cycle Time (tCKAVGmin) */
+	unsigned char caslat_b1;              /* 397, 444 XMP CAS latencies, 1st byte */
+	unsigned char caslat_b2;              /* 398, 445 XMP CAS Latencies, 2nd byte */
+	unsigned char caslat_b3;              /* 399, 446 XMP CAS Latencies, 3rd byte */
+	unsigned char caslat_b4;              /* 400, 447 XMP CAS Latencies, 4th byte */
+	unsigned char taa_min;                /* 401, 448 XMP Minimum CAS Latency Time (tAAmin) */
+	unsigned char trcd_min;               /* 402, 449 XMP Minimum RAS# to CAS# Delay Time (tRCDmin) */
+	unsigned char trp_min;                /* 403, 450 XMP Minimum Row Precharge Delay Time (tRPmin) */
+	unsigned char tras_trc_ext;           /* 404, 451 XMP Upper Nibbles for tRAS and tRC */
+	unsigned char tras_min_lsb;           /* 405, 452 XMP Minimum Active to Precharge Delay Time (tRASmin), Least Significant Byte */
+	unsigned char trc_min_lsb;            /* 406, 453 XMP Minimum Active to Active/Refresh Delay Time (tRCmin), Least Significant Byte */
+	unsigned char trfc1_min_lsb;          /* 407, 454 XMP Minimum Refresh Recovery Delay Time (tRFC1min) Least Significant Byte */
+	unsigned char trfc1_min_msb;          /* 408, 455 XMP Minimum Refresh Recovery Delay Time (tRFC1min) Most Significant Byte */
+	unsigned char trfc2_min_lsb;          /* 409, 456 XMP Minimum Refresh Recovery Delay Time (tRFC2min) Least Significant Byte */
+	unsigned char trfc2_min_msb;          /* 410, 457 XMP Minimum Refresh Recovery Delay Time (tRFC2min) Most Significant Byte */
+	unsigned char trfc4_min_lsb;          /* 411, 458 XMP Minimum Refresh Recovery Delay Time (tRFC4min) Least Significant Byte */
+	unsigned char trfc4_min_msb;          /* 412, 459 XMP Minimum Refresh Recovery Delay Time (tRFC4min) Most Significant Byte */
+	unsigned char tfaw_msb;               /* 413, 460 Upper Nibble for tFAW */
+	unsigned char tfaw_min;               /* 414, 461 Minimum Four Activate Window Delay Time (tFAWmin), Least Significant Byte */
+	unsigned char trrds_min;              /* 415, 462 Minimum Activate to Activate Delay Time (tRRD_Smin), different bank group */
+	unsigned char trrdl_min;              /* 416, 463 Minimum Activate to Activate Delay Time (tRRD_Lmin), same bank group */
+	unsigned char tccdl_min;              /* 417, 464 Minimum Activate to Activate Delay Time (tCCS_Lmin), same bank group */
+	unsigned char res_418[424 - 418];     /* 418-423, 465-470 XMP Reserved */
+	unsigned char fine_tccdl_min;         /* 424, 471 Fine Offset for Minimum Activate to Activate Delay Time (tCCS_Lmin), same bank group */
+	unsigned char fine_trrdl_min;         /* 425, 472 Fine Offset for Minimum Activate to Activate Delay Time (tRRD_Lmin), different bank group */
+	unsigned char fine_trrds_min;         /* 426, 473 Fine Offset for Minimum Activate to Activate Delay Time (tRRD_Smin), same bank group */
+	unsigned char fine_trc_min;           /* 427, 474 Fine Offset for Minimum Active to Active/Refresh Delay Time (tRCmin) */
+	unsigned char fine_trp_min;           /* 428, 475 Minimum Row Precharge Delay Time (tRPmin) */
+	unsigned char fine_trcd_min;          /* 429, 476 Fine Offset for Minimum RAS# to CAS# Delay Time (tRCDmin) */
+	unsigned char fine_taa_min;           /* 430, 477 Fine Offset for Minimum CAS Latency Time (tAAmin) */
+	unsigned char fine_tck_min;           /* 431, 478 Fine Offset for SDRAM Maximum Cycle Time (tCKAVGmax) */
+	unsigned char res_433[440 - 432];     /* 433-439, 480-486 XMP Reserved */
+};
+
 /* From JEEC Standard No. 21-C release 23A */
 struct ddr4_spd {
 	/* General Section: Bytes 0-127 */
@@ -250,8 +287,11 @@ struct ddr4_spd {
 	unsigned char dmid_lsb;		/* 350 DRAM MfgID Code LSB */
 	unsigned char dmid_msb;		/* 351 DRAM MfgID Code MSB */
 	unsigned char stepping;		/* 352 DRAM stepping */
-	unsigned char msd[29];		/* 353~381 Mfg's Specific Data */
-	unsigned char res_382[2];	/* 382~383 Reserved */
+	unsigned char msd[382 - 353];   /* 353~381 Mfg's Specific Data */
+	unsigned char res_382[386 - 382];       /* 382~392 Reserved */
+	unsigned char xmp1_orgconf;
+	unsigned char res_387[393 - 387];	/* 382~392 Reserved */
+	struct xmp_profile_data xmp[2];
 };
 
 /* Parameters for a DDR dimm computed from the SPD */

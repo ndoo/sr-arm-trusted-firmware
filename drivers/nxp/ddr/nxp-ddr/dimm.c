@@ -130,6 +130,103 @@ compute_ranksize(const struct ddr4_spd *spd)
 	return bsize;
 }
 
+#ifdef XMP_PROFILE
+static void apply_xmp_timings(const struct ddr4_spd *spd, struct dimm_params *pdimm)
+{
+	int profile = XMP_PROFILE;
+
+	if ((profile > 2) || (profile < 1))
+		return;
+
+	if ((spd->xmp1_orgconf & profile)) {
+		profile--;
+		if ((spd->xmp[profile].module_vdd & 0x7F) > 20) {
+			NOTICE("XMP Profile voltage requirements not met\n");
+			return;
+		} else {
+			NOTICE("Using XMP Profile\n");
+		}
+	} else {
+		return;
+	}
+
+	/* sdram minimum cycle time */
+	pdimm->tckmin_x_ps = spd_to_ps(spd->xmp[profile].tck_min, spd->xmp[profile].fine_tck_min);
+	debug("tckmin_x_ps %d\n", pdimm->tckmin_x_ps);
+
+	/* sdram max cycle time */
+	pdimm->tckmax_ps = spd_to_ps(spd->tck_max, spd->fine_tck_max);
+	debug("tckmax_ps %d\n", pdimm->tckmax_ps);
+
+	/*
+	 * CAS latency supported
+	 * bit0 - CL7
+	 * bit4 - CL11
+	 * bit8 - CL15
+	 * bit12- CL19
+	 * bit16- CL23
+	 */
+	pdimm->caslat_x  = (spd->xmp[profile].caslat_b1 << 7)	|
+			   (spd->xmp[profile].caslat_b2 << 15)	|
+			   (spd->xmp[profile].caslat_b3 << 23);
+	debug("caslat_x 0x%x\n", pdimm->caslat_x);
+
+	if (spd->xmp[profile].caslat_b4 != 0)
+		WARN("Unhandled caslat_b4 value\n");
+
+	/*
+	 * min CAS latency time
+	 */
+	pdimm->taa_ps = spd_to_ps(spd->xmp[profile].taa_min, spd->xmp[profile].fine_taa_min);
+	debug("taa_ps %d\n", pdimm->taa_ps);
+
+	/*
+	 * min RAS to CAS delay time
+	 */
+	pdimm->trcd_ps = spd_to_ps(spd->xmp[profile].trcd_min, spd->xmp[profile].fine_trcd_min);
+	debug("trcd_ps %d\n", pdimm->trcd_ps);
+
+	/*
+	 * Min Row Precharge Delay Time
+	 */
+	pdimm->trp_ps = spd_to_ps(spd->xmp[profile].trp_min, spd->xmp[profile].fine_trp_min);
+	debug("trp_ps %d\n", pdimm->trp_ps);
+
+	/* min active to precharge delay time */
+	pdimm->tras_ps = (((spd->xmp[profile].tras_trc_ext & 0xf) << 8) +
+			  spd->xmp[profile].tras_min_lsb) * pdimm->mtb_ps;
+	debug("tras_ps %d\n", pdimm->tras_ps);
+
+	/* min active to actice/refresh delay time */
+	pdimm->trc_ps = spd_to_ps((((spd->xmp[profile].tras_trc_ext & 0xf0) << 4) +
+				   spd->xmp[profile].trc_min_lsb), spd->xmp[profile].fine_trc_min);
+	debug("trc_ps %d\n", pdimm->trc_ps);
+	/* Min Refresh Recovery Delay Time */
+	pdimm->trfc1_ps = ((spd->xmp[profile].trfc1_min_msb << 8) | (spd->xmp[profile].trfc1_min_lsb)) *
+		       pdimm->mtb_ps;
+	debug("trfc1_ps %d\n", pdimm->trfc1_ps);
+	pdimm->trfc2_ps = ((spd->xmp[profile].trfc2_min_msb << 8) | (spd->xmp[profile].trfc2_min_lsb)) *
+		       pdimm->mtb_ps;
+	debug("trfc2_ps %d\n", pdimm->trfc2_ps);
+	pdimm->trfc4_ps = ((spd->xmp[profile].trfc4_min_msb << 8) | (spd->xmp[profile].trfc4_min_lsb)) *
+			pdimm->mtb_ps;
+	debug("trfc4_ps %d\n", pdimm->trfc4_ps);
+	/* min four active window delay time */
+	pdimm->tfaw_ps = (((spd->xmp[profile].tfaw_msb & 0xf) << 8) | spd->xmp[profile].tfaw_min) *
+			pdimm->mtb_ps;
+	debug("tfaw_ps %d\n", pdimm->tfaw_ps);
+
+	/* min row active to row active delay time, different bank group */
+	pdimm->trrds_ps = spd_to_ps(spd->xmp[profile].trrds_min, spd->xmp[profile].fine_trrds_min);
+	debug("trrds_ps %d\n", pdimm->trrds_ps);
+	/* min row active to row active delay time, same bank group */
+	pdimm->trrdl_ps = spd_to_ps(spd->xmp[profile].trrdl_min, spd->xmp[profile].fine_trrdl_min);
+	debug("trrdl_ps %d\n", pdimm->trrdl_ps);
+	/* min CAS to CAS Delay Time (tCCD_Lmin), same bank group */
+	// pdimm->tccdl_ps = spd_to_ps(spd->xmp[profile].tccdl_min, spd->xmp[profile].fine_tccdl_min);
+}
+#endif
+
 int cal_dimm_params(const struct ddr4_spd *spd, struct dimm_params *pdimm)
 {
 	int ret;
@@ -394,6 +491,10 @@ int cal_dimm_params(const struct ddr4_spd *spd, struct dimm_params *pdimm)
 
 	pdimm->dq_mapping_ors = ((spd->mapping[0] >> 6) & 0x3) == 0 ? 1 : 0;
 	debug("dq_mapping_ors %d\n", pdimm->dq_mapping_ors);
+
+#ifdef XMP_PROFILE
+	apply_xmp_timings(spd, pdimm);
+#endif
 
 	return 0;
 }
