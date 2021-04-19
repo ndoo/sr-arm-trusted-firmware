@@ -985,8 +985,8 @@ static int phy_gen2_msg_init(void *msg_1d,
 		msg_blk_2d->rx2d_train_opt	= 0U;
 		msg_blk_2d->tx2d_train_opt	= 0U;
 		msg_blk_2d->share2dvref_result	= 1U;
-		msg_blk_2d->delay_weight2d	= U(0x20);
-		msg_blk_2d->voltage_weight2d	= U(0x80);
+		msg_blk_2d->delay_weight2d	= U(0x80);
+		msg_blk_2d->voltage_weight2d	= U(0x20);
 		debug("rx2d_train_opt %d, tx2d_train_opt %d\n",
 				msg_blk_2d->rx2d_train_opt,
 				msg_blk_2d->tx2d_train_opt);
