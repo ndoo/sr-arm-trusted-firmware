@@ -142,6 +142,10 @@ ifeq (${IMG_LOADR_NEEDED},yes)
 include $(PLAT_COMMON_PATH)/img_loadr/img_loadr.mk
 endif
 
+ifeq (${OCRAM_ECC_EN},yes)
+include $(PLAT_COMMON_PATH)/ocram/ocram.mk
+endif
+
  # Adding source files for the above selected drivers.
 include ${PLAT_DRIVERS_PATH}/drivers.mk
 
