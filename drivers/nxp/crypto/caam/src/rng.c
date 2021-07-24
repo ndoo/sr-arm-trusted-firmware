@@ -170,7 +170,7 @@ int hw_rng_instantiate(void)
 {
 	int ret = 0;
 	int ent_delay = RTSDCTL_ENT_DLY_MIN;
-	uint32_t state_handle;
+	uint32_t val, state_handle;
 
 	ret = is_hw_rng_instantiated(&state_handle);
 	if (ret != 0) {
@@ -194,8 +194,10 @@ int hw_rng_instantiate(void)
 
 	NOTICE("RNG: INSTANTIATED\n");
 
-	/* Enable RDB bit so that RNG works faster */
-	// sec_setbits32(&sec->scfgr, SEC_SCFGR_RDBENABLE);
+	/* enable rdb bit so that rng works faster */
+	val = sec_in32(get_caam_addr() + SEC_REG_SCFGR_OFFSET);
+	val |= SCFGR_RDB;
+	sec_out32(get_caam_addr() + SEC_REG_SCFGR_OFFSET, val);
 
 	return ret;
 }
