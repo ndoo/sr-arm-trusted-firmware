@@ -35,7 +35,7 @@ FSPI_ERASE_4K	:= 0
 
  # Platform specific features.
 WARM_BOOT	:=	no
-TRNG_SUPPORT            	:= 1
+TRNG_SUPPORT            	:= 0
 
  # Adding platform specific defines
 
