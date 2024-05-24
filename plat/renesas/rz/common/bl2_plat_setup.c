@@ -26,6 +26,14 @@
 #include <rz_private.h>
 #include <drivers/delay_timer.h>
 
+#if defined(BL33_ARG1_FDTBLOB) && BL33_ARG1_FDTBLOB
+#include <libfdt.h>
+
+/* FDT with DRAM configuration */
+uint64_t fdt_blob[PAGE_SIZE_4KB / sizeof(uint64_t)];
+static void *fdt = (void *)fdt_blob;
+#endif
+
 static const mmap_region_t rzg2l_mmap[] = {
 #if TRUSTED_BOARD_BOOT
 	MAP_REGION_FLAT(RZG2L_BOOT_ROM_BASE, RZG2L_BOOT_ROM_SIZE,
@@ -149,6 +157,31 @@ void bl2_el3_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
+#if defined(BL33_ARG1_FDTBLOB) && BL33_ARG1_FDTBLOB
+int bl2_fdtblob_setup_dram(void *fdt);
+
+static inline int bl2_fdtblob_setup(void)
+{
+	int ret;
+
+	/* Set up FDT */
+	ret = fdt_create_empty_tree(fdt, sizeof(fdt_blob));
+	if (ret)
+		return ret;
+
+	ret = bl2_fdtblob_setup_dram(fdt);
+	if (ret)
+		return ret;
+
+	ret = fdt_pack(fdt);
+	if (ret)
+		return ret;
+
+	NOTICE("BL2: FDT at %p\n", fdt);
+	return 0;
+}
+#endif
+
 void bl2_platform_setup(void)
 {
 	/* Setup TZC-400, Access Control */
@@ -160,4 +193,9 @@ void bl2_platform_setup(void)
 #endif /* DEBUG_FPGA */
 
 	rz_io_setup();
+
+#if defined(BL33_ARG1_FDTBLOB) && BL33_ARG1_FDTBLOB
+	if (bl2_fdtblob_setup())
+		ERROR("FDT Blob setup failed, u-boot memory reporting will be inaccurate.\n");
+#endif
 }

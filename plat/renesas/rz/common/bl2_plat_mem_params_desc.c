@@ -5,6 +5,7 @@
  */
 
 #include <common/desc_image_load.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/common/platform.h>
 #include <rzg2l_def.h>
 
@@ -12,6 +13,10 @@
 #define BL33_MODE MODE_EL1
 #else
 #define BL33_MODE MODE_EL2
+#endif
+
+#if defined(BL33_ARG1_FDTBLOB) && BL33_ARG1_FDTBLOB
+extern uint64_t fdt_blob[PAGE_SIZE_4KB / sizeof(uint64_t)];
 #endif
 
 static bl_mem_params_node_t bl2_mem_params_descs[] = {
@@ -40,6 +45,10 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	{
 		.image_id = BL32_IMAGE_ID,
 
+#if defined(BL33_ARG1_FDTBLOB) && BL33_ARG1_FDTBLOB
+		.ep_info.args.arg1 = (uintptr_t)fdt_blob,
+#endif
+
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP, VERSION_2,
 			entry_point_info_t, SECURE | EXECUTABLE),
 		.ep_info.pc = BL32_BASE,
@@ -55,6 +64,10 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 # endif /* BL32_BASE */
 	{
 		.image_id = BL33_IMAGE_ID,
+
+#if defined(BL33_ARG1_FDTBLOB) && BL33_ARG1_FDTBLOB
+		.ep_info.args.arg1 = (uintptr_t)fdt_blob,
+#endif
 
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP, VERSION_2,
 			entry_point_info_t, NON_SECURE | EXECUTABLE),
