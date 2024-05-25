@@ -59,6 +59,15 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 	return 0;
 }
 
+#if defined(BL33_ARG23_DRAM_INFO) && BL33_ARG23_DRAM_INFO
+int bl3_params_setup(unsigned int image_id, bl2_to_bl31_params_mem_t *params);
+#else
+static inline int bl3_params_setup(unsigned int image_id, bl2_to_bl31_params_mem_t *params)
+{
+	return 0;
+}
+#endif
+
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	static bl2_to_bl31_params_mem_t *params;
@@ -84,6 +93,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		/* Do nothing in default case */
 		break;
 	}
+
+	bl3_params_setup(image_id, params);
 
 	return 0;
 }
