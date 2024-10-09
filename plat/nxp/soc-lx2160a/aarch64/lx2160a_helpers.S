@@ -38,6 +38,7 @@ func plat_reset_handler
 
 #if defined(IMAGE_BL31)
 	bl _l2_data_ram_4_latency
+	bl _enable_delay_exclusive_snoop_A72
 	ldr x0, =POLICY_SMMU_PAGESZ_64K
 	cbz x0, 1f
 	/* Set the SMMU page size in the sACR register */
