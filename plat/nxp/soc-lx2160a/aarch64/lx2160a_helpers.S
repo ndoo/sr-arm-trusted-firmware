@@ -37,6 +37,7 @@ func plat_reset_handler
 	bl  apply_platform_errata
 
 #if defined(IMAGE_BL31)
+	bl _l2_data_ram_4_latency
 	ldr x0, =POLICY_SMMU_PAGESZ_64K
 	cbz x0, 1f
 	/* Set the SMMU page size in the sACR register */

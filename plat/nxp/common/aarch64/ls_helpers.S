@@ -6,8 +6,8 @@
  */
 
 #include <asm_macros.S>
+#include <cortex_a72.h>
 #include <drivers/console.h>
-#include <lib/cpus/aarch64/cortex_a72.h>
 
 #include <platform_def.h>
 
@@ -23,6 +23,7 @@
 	.globl _disable_ldstr_pfetch_A53
 	.globl _disable_ldstr_pfetch_A72
 	.global	_set_smmu_pagesz_64
+	.global _l2_data_ram_4_latency
 
 	/* int plat_crash_console_init(void)
 	 * Function to initialize the crash console
@@ -192,3 +193,17 @@ func _set_smmu_pagesz_64
 
 	ret
 endfunc _set_smmu_pagesz_64
+
+/*
+ * Function sets L2 cache data RAM latency to 4 cycles
+ */
+func _l2_data_ram_4_latency
+
+	mrs	x0, CORTEX_A72_L2CTLR_EL1
+	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_4_CYCLES << \
+			CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+	msr CORTEX_A72_L2CTLR_EL1, x0
+	isb
+
+	ret
+endfunc _l2_data_ram_4_latency
