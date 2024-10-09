@@ -6,8 +6,8 @@
  */
 
 #include <asm_macros.S>
+#include <cortex_a72.h>
 #include <drivers/console.h>
-#include <lib/cpus/aarch64/cortex_a72.h>
 
 #include <platform_def.h>
 
@@ -23,6 +23,7 @@
 	.globl _disable_ldstr_pfetch_A53
 	.globl _disable_ldstr_pfetch_A72
 	.global	_set_smmu_pagesz_64
+	.global _enable_delay_exclusive_snoop_A72
 
 	/* int plat_crash_console_init(void)
 	 * Function to initialize the crash console
@@ -192,3 +193,22 @@ func _set_smmu_pagesz_64
 
 	ret
 endfunc _set_smmu_pagesz_64
+
+/*
+ * Function enables snoop-delayed exclusive handling on A72 cores
+ */
+func _enable_delay_exclusive_snoop_A72
+        mrs     x0, CORTEX_A72_CPUACTLR_EL1
+        tst     x0, #CORTEX_A72_CPUACTLR_EL1_DELAY_EXCLUSIVE_SNOOP
+        b.eq    1f
+        b       2f
+.align 6
+1:
+        dsb     sy
+        isb
+        orr     x0, x0, #CORTEX_A72_CPUACTLR_EL1_DELAY_EXCLUSIVE_SNOOP
+        msr     CORTEX_A72_CPUACTLR_EL1, x0
+        isb
+2:
+        ret
+endfunc _enable_delay_exclusive_snoop_A72
